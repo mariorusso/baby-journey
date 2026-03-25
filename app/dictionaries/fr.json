@@ -1,0 +1,57 @@
+{
+  "login": {
+    "title": "Bienvenue sur Baby Journey",
+    "subtitle": "Votre suivi sécurisé des étapes clés",
+    "googleButton": "Continuer avec Google",
+    "divider": "ou",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "vous@exemple.com",
+    "submitButton": "Envoyer le lien magique",
+    "submitting": "Envoi en cours..."
+  },
+  "checkEmail": {
+    "title": "Vérifiez votre boîte de réception !",
+    "message": "Nous vous avons envoyé un lien magique. Cliquez dessus pour vous connecter.",
+    "spamHint": "Vous ne le trouvez pas ? Vérifiez votre dossier spam.",
+    "backButton": "Retour à la connexion"
+  },
+  "uploader": {
+    "idle": "Touchez pour ajouter une photo ou vidéo",
+    "idleHint": "Ou glissez-déposez ici · Max 50 Mo",
+    "dragActive": "Déposez ici !",
+    "uploading": "Téléversement...",
+    "success": "Téléversé avec succès !",
+    "error": "Une erreur est survenue",
+    "retry": "Réessayer",
+    "fileTooLarge": "Le fichier est trop volumineux. La taille maximale est de 50 Mo.",
+    "invalidType": "Type de fichier non pris en charge. Utilisez JPEG, PNG, WebP, HEIC, MP4, MOV ou WebM."
+  },
+  "dashboard": {
+    "welcome": "Bon retour",
+    "yourBabies": "Vos Bébés",
+    "addBaby": "Ajouter un Bébé",
+    "emptyTitle": "Aucun bébé trouvé",
+    "emptyMessage": "Commençons votre aventure !",
+    "ageDay": "j",
+    "ageMonth": "m",
+    "ageYear": "a",
+    "shared": "Partagé avec vous"
+  },
+  "addBaby": {
+    "title": "Ajouter un Bébé",
+    "nameLabel": "Nom du Bébé",
+    "birthdayLabel": "Date de Naissance ou Prévue",
+    "submitButton": "Créer l'Album",
+    "submitting": "Création...",
+    "backLink": "Retour au Tableau de Bord"
+  },
+  "album": {
+    "backToDashboard": "Tableau de Bord",
+    "uploadTitle": "Capturer un Nouveau Moment",
+    "noMomentsTitle": "Aucun moment pour l'instant",
+    "noMomentsMessage": "Téléchargez votre première photo ou vidéo pour commencer l'aventure de ce bébé !",
+    "momentDateLabel": "Capturé le"
+  }
+}
+
+

@@ -1,0 +1,57 @@
+{
+  "login": {
+    "title": "Welcome to Baby Journey",
+    "subtitle": "Your secure milestone tracker",
+    "googleButton": "Continue with Google",
+    "divider": "or",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@example.com",
+    "submitButton": "Send Magic Link",
+    "submitting": "Sending..."
+  },
+  "checkEmail": {
+    "title": "Check your inbox!",
+    "message": "We sent a magic link to your email. Click it to sign in.",
+    "spamHint": "Don't see it? Check your spam folder.",
+    "backButton": "Back to login"
+  },
+  "uploader": {
+    "idle": "Tap to upload a photo or video",
+    "idleHint": "Or drag and drop here · Max 50 MB",
+    "dragActive": "Drop it here!",
+    "uploading": "Uploading...",
+    "success": "Uploaded successfully!",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "fileTooLarge": "File is too large. Maximum size is 50 MB.",
+    "invalidType": "Unsupported file type. Please use JPEG, PNG, WebP, HEIC, MP4, MOV, or WebM."
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "yourBabies": "Your Babies",
+    "addBaby": "Add a Baby",
+    "emptyTitle": "No babies found",
+    "emptyMessage": "Let's start your journey!",
+    "ageDay": "d",
+    "ageMonth": "mo",
+    "ageYear": "y",
+    "shared": "Shared with you"
+  },
+  "addBaby": {
+    "title": "Add a Baby",
+    "nameLabel": "Baby's Name",
+    "birthdayLabel": "Birthday or Due Date",
+    "submitButton": "Create Album",
+    "submitting": "Creating...",
+    "backLink": "Back to Dashboard"
+  },
+  "album": {
+    "backToDashboard": "Dashboard",
+    "uploadTitle": "Capture a New Moment",
+    "noMomentsTitle": "No moments yet",
+    "noMomentsMessage": "Upload your first photo or video to start this baby's journey!",
+    "momentDateLabel": "Captured on"
+  }
+}
+
+

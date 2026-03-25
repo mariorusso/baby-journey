@@ -1,0 +1,57 @@
+{
+  "login": {
+    "title": "Bienvenido a Baby Journey",
+    "subtitle": "Tu rastreador seguro de hitos",
+    "googleButton": "Continuar con Google",
+    "divider": "o",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu@ejemplo.com",
+    "submitButton": "Enviar enlace mágico",
+    "submitting": "Enviando..."
+  },
+  "checkEmail": {
+    "title": "¡Revisa tu bandeja de entrada!",
+    "message": "Te enviamos un enlace mágico a tu correo. Haz clic para iniciar sesión.",
+    "spamHint": "¿No lo ves? Revisa tu carpeta de spam.",
+    "backButton": "Volver al inicio de sesión"
+  },
+  "uploader": {
+    "idle": "Toca para subir una foto o video",
+    "idleHint": "O arrastra y suelta aquí · Máx 50 MB",
+    "dragActive": "¡Suéltalo aquí!",
+    "uploading": "Subiendo...",
+    "success": "¡Subido con éxito!",
+    "error": "Algo salió mal",
+    "retry": "Intentar de nuevo",
+    "fileTooLarge": "El archivo es demasiado grande. El tamaño máximo es 50 MB.",
+    "invalidType": "Tipo de archivo no compatible. Usa JPEG, PNG, WebP, HEIC, MP4, MOV o WebM."
+  },
+  "dashboard": {
+    "welcome": "Bienvenido de nuevo",
+    "yourBabies": "Tus Bebés",
+    "addBaby": "Agregar un Bebé",
+    "emptyTitle": "No se encontraron bebés",
+    "emptyMessage": "¡Comencemos tu viaje!",
+    "ageDay": "d",
+    "ageMonth": "m",
+    "ageYear": "a",
+    "shared": "Compartido contigo"
+  },
+  "addBaby": {
+    "title": "Agregar un Bebé",
+    "nameLabel": "Nombre del Bebé",
+    "birthdayLabel": "Fecha de Nacimiento o Entrega",
+    "submitButton": "Crear Álbum",
+    "submitting": "Creando...",
+    "backLink": "Volver al Panel"
+  },
+  "album": {
+    "backToDashboard": "Panel",
+    "uploadTitle": "Captura un Nuevo Momento",
+    "noMomentsTitle": "Aún no hay momentos",
+    "noMomentsMessage": "¡Sube tu primera foto o video para comenzar el viaje de este bebé!",
+    "momentDateLabel": "Capturado el"
+  }
+}
+
+

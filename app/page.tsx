@@ -1,14 +1,12 @@
-import { uploadMoment } from "@/app/lib/actions";
+// TODO: This page will be rebuilt to use the presigned URL upload flow.
+// See: POST /api/upload/presign → client PUT to R2 → POST /api/upload/confirm
 
 export default function UploadPage() {
   return (
     <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded-xl shadow-md">
       <h1 className="text-2xl font-bold mb-6 text-gray-800">Add a New Moment</h1>
       
-      {/* Notice the action={uploadMoment}? 
-        Next.js handles sending all the data straight to your server function! 
-      */}
-      <form action={uploadMoment} className="flex flex-col gap-4">
+      <form className="flex flex-col gap-4">
         
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>
