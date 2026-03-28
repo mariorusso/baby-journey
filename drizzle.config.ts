@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 export default defineConfig({
-  schema: "./app/db/schema.ts",
+  schema: "./app/db/schema.ts", // or "./app/db/schema.ts" depending on your project structure
   out: "./drizzle",
   dialect: "sqlite", // D1 is SQLite-based
   driver: "d1-http", // This tells Drizzle to push via Cloudflare's HTTP API
