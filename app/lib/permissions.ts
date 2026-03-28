@@ -1,19 +1,16 @@
-import { db } from "@/app/db";
+import { getDb } from "@/app/db";
 import { babies, accessShares } from "@/app/db/schema";
 import { eq, and } from "drizzle-orm";
 
 /**
  * Checks if the given Clerk user has upload permission for the given baby.
- * A user is authorized if they are:
- *   1. The owner of the baby (babies.ownerId), OR
- *   2. An 'editor' in the accessShares table for that baby.
- *
- * @returns true if authorized, false otherwise.
  */
 export async function assertCanUpload(
   userId: string,
   babyId: string
 ): Promise<boolean> {
+  const db = getDb();
+
   // Check 1: Is the user the baby's owner?
   const baby = await db.query.babies.findFirst({
     where: and(eq(babies.id, babyId), eq(babies.ownerId, userId)),
@@ -39,12 +36,16 @@ export async function assertCanUpload(
 
 /**
  * Fetches baby details IF the user has ANY access (owner, editor, or viewer).
- * Returns the baby object and the user's role.
  */
 export async function getBabyWithAccess(
   userId: string,
   babyId: string
-): Promise<{ baby: typeof babies.$inferSelect; role: "owner" | "editor" | "viewer" } | null> {
+): Promise<{ 
+  baby: typeof babies.$inferSelect; 
+  role: "owner" | "editor" | "viewer" 
+} | null> {
+  const db = getDb();
+
   // 1. Is the user the owner?
   const ownedBaby = await db.query.babies.findFirst({
     where: and(eq(babies.id, babyId), eq(babies.ownerId, userId)),
@@ -56,7 +57,7 @@ export async function getBabyWithAccess(
 
   // 2. Is there a shared access?
   const shared = await db.query.accessShares.findFirst({
-    where: and(eq(accessShares.babyId, babyId), eq(accessShares.userId, userId)),
+    where: and(eq(accessShares.id, babyId), eq(accessShares.userId, userId)),
     with: { baby: true },
   });
 

@@ -1,5 +1,5 @@
-import { auth } from "@/auth";
-import { db } from "@/app/db";
+import { auth } from "@clerk/nextjs/server";
+import { getDb } from "@/app/db";
 import { moments } from "@/app/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { redirect, notFound } from "next/navigation";
@@ -16,13 +16,12 @@ export default async function AlbumPage({
 }) {
   const { lang, babyId } = await params;
 
-  // 1. Auth check
-  const session = await auth();
-  if (!session?.user?.id) {
+  // 1. Clerk Auth check
+  const { userId } = await auth();
+  if (!userId) {
     redirect(`/${lang}/login`);
   }
 
-  const userId = session.user.id;
   const dict = await getDictionary(lang);
   const t = dict.album;
 
@@ -37,6 +36,7 @@ export default async function AlbumPage({
   const canUpload = role === "owner" || role === "editor";
 
   // 3. Fetch moments for this baby
+  const db = getDb();
   const babyMoments = await db.query.moments.findMany({
     where: eq(moments.babyId, babyId),
     orderBy: [desc(moments.capturedAt)],
@@ -45,15 +45,15 @@ export default async function AlbumPage({
   const R2_URL = process.env.NEXT_PUBLIC_R2_PUBLIC_URL;
 
   return (
-    <div className="album-page">
+    <div className="album-page max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
-      <header className="album-header">
+      <header className="album-header mb-8">
         <div className="album-header-left">
-          <Link href={`/${lang}/dashboard`} className="back-to-dash">
+          <Link href={`/${lang}/dashboard`} className="back-to-dash text-indigo-600 font-semibold mb-4 inline-block hover:underline">
             ← {t.backToDashboard}
           </Link>
-          <h1 className="album-title">{baby.name}</h1>
-          <p className="album-subtitle">
+          <h1 className="album-title text-4xl font-extrabold text-slate-900">{baby.name}</h1>
+          <p className="album-subtitle text-slate-500 font-medium mt-1">
             {calculateAge(baby.birthday, dict.dashboard)}
           </p>
         </div>
@@ -61,8 +61,8 @@ export default async function AlbumPage({
 
       {/* Uploader (only for owners/editors) */}
       {canUpload && (
-        <section className="album-uploader-section">
-          <h2 className="section-title">{t.uploadTitle}</h2>
+        <section className="album-uploader-section mb-12 bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+          <h2 className="section-title text-xl font-bold text-slate-800 mb-4">{t.uploadTitle}</h2>
           <UploaderWrapper 
             babyId={babyId} 
             dict={dict.uploader} 
@@ -73,33 +73,33 @@ export default async function AlbumPage({
       {/* Moments Grid */}
       <main className="album-content">
         {babyMoments.length === 0 ? (
-          <div className="album-empty">
-            <span className="empty-emoji">📸</span>
-            <h3 className="empty-title">{t.noMomentsTitle}</h3>
-            <p className="empty-msg">{t.noMomentsMessage}</p>
+          <div className="album-empty py-20 text-center flex flex-col items-center">
+            <span className="empty-emoji text-6xl mb-4">📸</span>
+            <h3 className="empty-title text-2xl font-bold text-slate-800">{t.noMomentsTitle}</h3>
+            <p className="empty-msg text-slate-500 mt-2 max-w-md">{t.noMomentsMessage}</p>
           </div>
         ) : (
-          <div className="moments-grid">
+          <div className="moments-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {babyMoments.map((moment) => (
-              <div key={moment.id} className="moment-card">
-                <div className="moment-media">
+              <div key={moment.id} className="moment-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-slate-100 group">
+                <div className="moment-media aspect-square overflow-hidden bg-slate-50 relative">
                   {moment.mediaType.startsWith("video") ? (
                     <video
                       src={`${R2_URL}/${moment.r2Key}`}
                       controls
-                      className="moment-video"
+                      className="moment-video w-full h-full object-cover"
                     />
                   ) : (
                     <img
                       src={`${R2_URL}/${moment.r2Key}`}
                       alt={moment.r2Key}
-                      className="moment-image"
+                      className="moment-image w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
                     />
                   )}
                 </div>
-                <div className="moment-info">
-                  <span className="moment-date">
+                <div className="moment-info p-4 flex justify-between items-center">
+                  <span className="moment-date text-sm font-semibold text-slate-400 capitalize">
                     {t.momentDateLabel}{" "}
                     {new Date(moment.capturedAt).toLocaleDateString(lang, {
                       month: "short",
@@ -107,6 +107,7 @@ export default async function AlbumPage({
                       year: "numeric",
                     })}
                   </span>
+                  {moment.isFavorite && <span className="text-xl">❤️</span>}
                 </div>
               </div>
             ))}

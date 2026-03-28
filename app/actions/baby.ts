@@ -1,15 +1,16 @@
 "use server";
 
-import { auth } from "@/auth";
-import { db } from "@/app/db";
+import { auth } from "@clerk/nextjs/server";
+import { getDb } from "@/app/db";
 import { babies } from "@/app/db/schema";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { nanoid } from "nanoid";
 
 export async function createBaby(formData: FormData) {
-  // 1. Auth check
-  const session = await auth();
-  if (!session?.user?.id) {
+  // 1. Clerk Auth check
+  const { userId } = await auth();
+  if (!userId) {
     throw new Error("Unauthorized");
   }
 
@@ -30,13 +31,17 @@ export async function createBaby(formData: FormData) {
     throw new Error("Invalid date");
   }
 
-  // 3. Insert into DB
+  const db = getDb();
+
+  // 3. Insert into D1 (NanoID Strategy)
   const [newBaby] = await db
     .insert(babies)
     .values({
-      ownerId: session.user.id,
+      id: nanoid(),
+      ownerId: userId,
       name: name.trim(),
       birthday: birthday,
+      createdAt: new Date(),
     })
     .returning();
 

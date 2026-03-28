@@ -1,11 +1,15 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import * as schema from './schema';
+import { drizzle } from "drizzle-orm/d1";
+import { getRequestContext } from "@cloudflare/next-on-pages";
+import * as schema from "./schema";
 
-// This grabs your password and IP from .env.local
-const connectionString = process.env.DATABASE_URL!;
+export const getDb = () => {
+  const context = getRequestContext();
+  
+  // If context is undefined (during local build/SSR), use a fallback or throw
+  if (!context) {
+    throw new Error("Cloudflare Request Context not found. Ensure you are running in the Pages environment.");
+  }
 
-// Disable prefetch as it is not supported for "Transaction" pool mode
-const client = postgres(connectionString, { prepare: false });
-
-export const db = drizzle(client, { schema });
+  // context.env.DB is the binding name assigned in wrangler.jsonc
+  return drizzle(context.env.DB, { schema });
+};

@@ -76,28 +76,15 @@ export function MediaUploader({
       setErrorMessage("");
 
       try {
-        // Step 1: Get presigned URL
-        const presignRes = await fetch("/api/upload/presign", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            babyId,
-            contentType: file.type,
-            fileSizeBytes: file.size,
-          }),
-        });
+        // Step 1: Upload directly to the binding through /api/upload/direct
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("babyId", babyId);
 
-        if (!presignRes.ok) {
-          const err = await presignRes.json();
-          throw new Error(err.error || "Failed to get upload URL");
-        }
+        const uploadRes = await uploadDirectly(formData);
+        const { r2Key } = uploadRes;
 
-        const { presignedUrl, r2Key } = await presignRes.json();
-
-        // Step 2: Upload directly to R2 with progress tracking
-        await uploadToR2(presignedUrl, file);
-
-        // Step 3: Confirm the upload
+        // Step 2: Confirm metadata insertion
         const confirmRes = await fetch("/api/upload/confirm", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -110,11 +97,11 @@ export function MediaUploader({
         });
 
         if (!confirmRes.ok) {
-          const err = await confirmRes.json();
-          throw new Error(err.error || "Failed to save record");
+          const errData = (await confirmRes.json()) as { error?: string };
+          throw new Error(errData.error || "Failed to save record");
         }
 
-        const { moment } = await confirmRes.json();
+        const { moment } = (await confirmRes.json()) as { moment: Record<string, unknown> };
         setProgress(100);
         setStatus("success");
         onUploadComplete?.(moment);
@@ -124,7 +111,7 @@ export function MediaUploader({
           setStatus("idle");
           setProgress(0);
         }, 3000);
-      } catch (err) {
+      } catch (err: unknown) {
         setStatus("error");
         setErrorMessage(
           err instanceof Error ? err.message : dict.error
@@ -135,26 +122,37 @@ export function MediaUploader({
     [babyId, dict, onUploadComplete]
   );
 
-  // ── R2 PUT with XMLHttpRequest progress ─────────────────────────────
-
-  function uploadToR2(presignedUrl: string, file: File): Promise<void> {
+  /**
+   * Performs the actual upload to /api/upload/direct with progress tracking.
+   */
+  function uploadDirectly(formData: FormData): Promise<{ r2Key: string }> {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
       xhr.upload.addEventListener("progress", (e) => {
         if (e.lengthComputable) {
-          // Map to 10–90% range (0-10% = presign, 90-100% = confirm)
-          const pct = Math.round(10 + (e.loaded / e.total) * 80);
+          // Map to 0–90% range for the actual upload
+          const pct = Math.round((e.loaded / e.total) * 90);
           setProgress(pct);
         }
       });
 
       xhr.addEventListener("load", () => {
         if (xhr.status >= 200 && xhr.status < 300) {
-          setProgress(90);
-          resolve();
+          try {
+            const data = JSON.parse(xhr.responseText);
+            setProgress(90);
+            resolve(data);
+          } catch {
+            reject(new Error("Failed to parse server response"));
+          }
         } else {
-          reject(new Error(`R2 upload failed with status ${xhr.status}`));
+          try {
+            const data = JSON.parse(xhr.responseText);
+            reject(new Error(data.error || "Upload failed"));
+          } catch {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
         }
       });
 
@@ -162,9 +160,8 @@ export function MediaUploader({
         reject(new Error("Network error during upload"));
       });
 
-      xhr.open("PUT", presignedUrl);
-      xhr.setRequestHeader("Content-Type", file.type);
-      xhr.send(file);
+      xhr.open("POST", "/api/upload/direct");
+      xhr.send(formData);
     });
   }
 
@@ -218,19 +215,11 @@ export function MediaUploader({
 
   // ── Render ──────────────────────────────────────────────────────────
 
-  const dropzoneClass = [
-    "uploader-dropzone",
-    isDragOver && "uploader-drag-over",
-    status === "uploading" && "uploader-busy",
-    status === "success" && "uploader-success",
-    status === "error" && "uploader-error",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const dropzoneClass = `uploader-dropzone ${isDragOver ? "uploader-drag-over" : ""} ${status === "uploading" ? "uploader-busy" : ""} ${status === "success" ? "uploader-success" : ""} ${status === "error" ? "uploader-error" : ""}`;
 
   return (
     <div
-      className={dropzoneClass}
+      className="p-8 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/50 hover:bg-slate-50 transition-all cursor-pointer group flex flex-col items-center justify-center min-h-[240px]"
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}
@@ -247,54 +236,54 @@ export function MediaUploader({
         type="file"
         accept="image/*,video/mp4,video/quicktime,video/webm"
         onChange={handleFileSelect}
-        className="uploader-input"
+        className="hidden"
         aria-hidden
       />
 
       {/* ── Idle State ── */}
       {status === "idle" && (
-        <div className="uploader-content">
-          <div className="uploader-icon">
+        <div className="flex flex-col items-center text-center">
+          <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
             {isDragOver ? "📥" : "📸"}
           </div>
-          <p className="uploader-title">
+          <p className="text-lg font-bold text-slate-700">
             {isDragOver ? dict.dragActive : dict.idle}
           </p>
-          <p className="uploader-hint">{dict.idleHint}</p>
+          <p className="text-sm text-slate-400 mt-1">{dict.idleHint}</p>
         </div>
       )}
 
       {/* ── Uploading State ── */}
       {status === "uploading" && (
-        <div className="uploader-content">
-          <div className="uploader-icon">☁️</div>
-          <p className="uploader-title">{dict.uploading}</p>
-          <div className="uploader-progress-track">
+        <div className="flex flex-col items-center w-full max-w-xs">
+          <div className="text-4xl mb-4 animate-bounce">☁️</div>
+          <p className="text-sm font-bold text-slate-700 mb-3">{dict.uploading}</p>
+          <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden shadow-inner mb-2">
             <div
-              className="uploader-progress-fill"
+              className="bg-indigo-600 h-full transition-all duration-300 shadow-[0_0_12px_rgba(79,70,229,0.4)]"
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="uploader-hint">{progress}%</p>
+          <p className="text-xs font-bold text-indigo-600">{progress}%</p>
         </div>
       )}
 
       {/* ── Success State ── */}
       {status === "success" && (
-        <div className="uploader-content">
-          <div className="uploader-icon">✅</div>
-          <p className="uploader-title">{dict.success}</p>
+        <div className="flex flex-col items-center text-center">
+          <div className="text-4xl mb-3 animate-pulse">✅</div>
+          <p className="text-lg font-bold text-green-600">{dict.success}</p>
         </div>
       )}
 
       {/* ── Error State ── */}
       {status === "error" && (
-        <div className="uploader-content">
-          <div className="uploader-icon">❌</div>
-          <p className="uploader-title">{errorMessage || dict.error}</p>
+        <div className="flex flex-col items-center text-center">
+          <div className="text-4xl mb-3">❌</div>
+          <p className="text-sm font-bold text-red-500 max-w-xs">{errorMessage || dict.error}</p>
           <button
             type="button"
-            className="uploader-retry"
+            className="mt-4 px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold rounded-lg transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               handleRetry();

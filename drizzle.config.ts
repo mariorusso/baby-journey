@@ -1,15 +1,18 @@
 import { defineConfig } from "drizzle-kit";
 import * as dotenv from "dotenv";
 
-// Force Drizzle to read your .env.local file
+// Load your Cloudflare credentials
 dotenv.config({ path: ".env.local" });
 
 export default defineConfig({
-  schema: "./app/db/schema.ts", // <-- Update this path if your schema is elsewhere
+  schema: "./app/db/schema.ts",
   out: "./drizzle",
-  dialect: "postgresql",
+  dialect: "sqlite", // D1 is SQLite-based
+  driver: "d1-http", // This tells Drizzle to push via Cloudflare's HTTP API
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    accountId: process.env.CLOUDFLARE_ACCOUNT_ID!,
+    databaseId: process.env.CLOUDFLARE_DATABASE_ID!,
+    token: process.env.CLOUDFLARE_D1_TOKEN!,
   },
   verbose: true,
   strict: true,

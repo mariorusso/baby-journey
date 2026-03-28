@@ -1,16 +1,17 @@
-import { auth } from "@/auth";
+import { auth } from "@clerk/nextjs/server";
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { HeadObjectCommand } from "@aws-sdk/client-s3";
-import { r2 } from "@/app/lib/r2";
-import { db } from "@/app/db";
+import { getBucket } from "@/app/lib/r2";
+import { getDb } from "@/app/db";
 import { moments } from "@/app/db/schema";
 import { assertCanUpload } from "@/app/lib/permissions";
 import { ALLOWED_MEDIA_TYPES, MAX_FILE_SIZE_BYTES } from "@/app/lib/constants";
 
+export const runtime = "edge"; // Full Cloudflare Native
+
 // ── Request validation schema ────────────────────────────────────────
 const confirmSchema = z.object({
-  babyId: z.string().uuid("babyId must be a valid UUID"),
+  babyId: z.string().min(1, "babyId is required"), // Switched from UUID to NanoID
   r2Key: z.string().min(1, "r2Key is required"),
   mediaType: z.enum(ALLOWED_MEDIA_TYPES, {
     message: `mediaType must be one of: ${ALLOWED_MEDIA_TYPES.join(", ")}`,
@@ -26,12 +27,11 @@ const confirmSchema = z.object({
 // ── POST /api/upload/confirm ─────────────────────────────────────────
 export async function POST(request: NextRequest) {
   try {
-    // 1. Authenticate via NextAuth
-    const session = await auth();
-    if (!session?.user?.id) {
+    // 1. Authenticate via Clerk
+    const { userId } = await auth();
+    if (!userId) {
       return Response.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const userId = session.user.id;
 
     // 2. Parse & validate request body
     const body = await request.json();
@@ -62,22 +62,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. Integrity check: verify the object actually exists in R2
-    try {
-      await r2.send(
-        new HeadObjectCommand({
-          Bucket: process.env.R2_BUCKET_NAME!,
-          Key: r2Key,
-        })
-      );
-    } catch {
+    // 5. Integrity check: verify the object exists in R2 using the binding
+    const bucket = getBucket();
+    const head = await bucket.head(r2Key);
+    
+    if (!head) {
       return Response.json(
         { error: "File not found in storage. Did the upload complete successfully?" },
         { status: 400 }
       );
     }
 
-    // 6. Insert the moment into the database
+    // 6. Insert the moment into the database (D1)
+    const db = getDb();
     const [moment] = await db
       .insert(moments)
       .values({
@@ -87,6 +84,8 @@ export async function POST(request: NextRequest) {
         mediaType,
         fileSizeBytes,
         caption: caption ?? null,
+        createdAt: new Date(),
+        capturedAt: new Date(),
       })
       .returning();
 

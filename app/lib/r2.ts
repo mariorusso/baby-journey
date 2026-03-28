@@ -1,10 +1,16 @@
-import { S3Client } from "@aws-sdk/client-s3";
+import { getRequestContext } from "@cloudflare/next-on-pages";
 
-export const r2 = new S3Client({
-  region: "auto",
-  endpoint: process.env.R2_ENDPOINT,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-});
+/**
+ * Access the Cloudflare R2 bucket binding directy via the Request Context.
+ * Requires "nodejs_compat" in wrangler.jsonc or .toml.
+ */
+export const getBucket = () => {
+  const context = getRequestContext();
+  
+  if (!context) {
+    throw new Error("Cloudflare Request Context not found. R2 Access requires the Edge runtime.");
+  }
+
+  // "BUCKET" is the binding name in wrangler.jsonc
+  return context.env.BUCKET;
+};

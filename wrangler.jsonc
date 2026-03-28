@@ -1,0 +1,24 @@
+{
+  "name": "baby-journey",
+  "compatibility_date": "2026-03-28",
+  "compatibility_flags": [
+    "nodejs_compat" 
+  ],
+  "pages_build_output_dir": ".next", 
+  "d1_databases": [
+    {
+      "binding": "DB", 
+      "database_name": "baby-journey-db",
+      "database_id": "61399ca1-47f7-4dba-83a3-2ff18f0d7b97" 
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "BUCKET",
+      "bucket_name": "babyjourney-app-dev"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
