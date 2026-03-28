@@ -2,10 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import {S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { r2 } from "@/app/lib/r2";
-import { db } from "@/app/db/index"; 
-import { moments } from "@/app/db/schema";
+import { getBucket } from "@/app/lib/r2";
+import { getDb } from "@/app/db/index";
 
 
 // Add prevState here
@@ -13,18 +11,14 @@ export async function handleUpload(prevState: any, formData: FormData) {
   const file = formData.get("file") as File;
   if (!file || file.size === 0) return { error: "No file provided" };
 
-  const buffer = Buffer.from(await file.arrayBuffer());
+  const arrayBuffer = await file.arrayBuffer();
   const fileName = `${Date.now()}-${file.name}`;
 
   try {
-    await r2.send(
-      new PutObjectCommand({
-        Bucket: process.env.R2_BUCKET_NAME,
-        Key: fileName,
-        Body: buffer,
-        ContentType: file.type,
-      })
-    );
+    const bucket = getBucket();
+    await bucket.put(fileName, arrayBuffer, {
+      httpMetadata: { contentType: file.type },
+    });
 
     return { success: true, key: fileName, error: null };
   } catch (error) {

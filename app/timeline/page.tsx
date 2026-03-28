@@ -1,4 +1,4 @@
-import { db } from "@/app/db";
+import { getDb } from "@/app/db/index";
 import { moments } from "@/app/db/schema";
 import { desc } from "drizzle-orm";
 import Link from "next/link";
@@ -7,6 +7,7 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export default async function TimelinePage() {
+    const db = getDb();
     // Fetch data directly from your New York Postgres Database
     const allMoments = await db.select().from(moments).orderBy(desc(moments.createdAt));
 
