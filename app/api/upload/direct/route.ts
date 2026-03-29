@@ -5,8 +5,6 @@ import { assertCanUpload } from "@/app/lib/permissions";
 import { nanoid } from "nanoid";
 import { MIME_TO_EXTENSION, AllowedMediaType } from "@/app/lib/constants";
 
-export const runtime = "edge";
-
 /**
  * Direct upload to R2 via Cloudflare bindings.
  * This replaces the legacy presigned URL flow to keep the stack "Zero-Tax" and Cloudflare-Native.

@@ -7,8 +7,6 @@ import { moments } from "@/app/db/schema";
 import { assertCanUpload } from "@/app/lib/permissions";
 import { ALLOWED_MEDIA_TYPES, MAX_FILE_SIZE_BYTES } from "@/app/lib/constants";
 
-export const runtime = "edge"; // Full Cloudflare Native
-
 // ── Request validation schema ────────────────────────────────────────
 const confirmSchema = z.object({
   babyId: z.string().min(1, "babyId is required"), // Switched from UUID to NanoID
