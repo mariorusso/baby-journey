@@ -22,7 +22,8 @@ export default function LandingPage() {
       <section className="lp-hero">
         <div className="lp-hero-content">
           <span className="lp-hero-badge">✨ Every moment matters</span>
-          <h1 className="lp-hero-title">            
+          <h1 className="lp-hero-title"> 
+                       
             Capture every precious
             <span className="lp-hero-gradient"> milestone</span>
           </h1>
