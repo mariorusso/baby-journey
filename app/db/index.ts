@@ -1,9 +1,9 @@
 import { drizzle } from "drizzle-orm/d1";
-import { getRequestContext } from "@cloudflare/next-on-pages";
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import * as schema from "./schema";
 
 export const getDb = () => {
-  const context = getRequestContext();
+  const context = getCloudflareContext();
   
   // If context is undefined (during local build/SSR), use a fallback or throw
   if (!context) {

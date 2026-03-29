@@ -4,7 +4,11 @@
   "compatibility_flags": [
     "nodejs_compat" 
   ],
-  "pages_build_output_dir": ".next", 
+  "main": ".open-next/worker.js",
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
   "d1_databases": [
     {
       "binding": "DB", 
