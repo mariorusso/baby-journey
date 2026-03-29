@@ -32,7 +32,7 @@ export default async function DashboardPage({
 
   const dict = await getDictionary(lang);
   const d = dict.dashboard;
-  const db = getDb();
+  const db = await getDb();
 
   // 3. Parallel data fetch: owned babies + shared babies
   const [ownedBabies, sharedAccess] = await Promise.all([

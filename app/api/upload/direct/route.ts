@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 4. Generate Key & Upload to R2
-    const bucket = getBucket();
+    const bucket = await getBucket();
     const extension = MIME_TO_EXTENSION[file.type as AllowedMediaType] || "bin";
     const r2Key = `${babyId}/${nanoid()}.${extension}`;
 

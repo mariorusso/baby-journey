@@ -9,7 +9,7 @@ export async function assertCanUpload(
   userId: string,
   babyId: string
 ): Promise<boolean> {
-  const db = getDb();
+  const db = await getDb();
 
   // Check 1: Is the user the baby's owner?
   const baby = await db.query.babies.findFirst({
@@ -44,7 +44,7 @@ export async function getBabyWithAccess(
   baby: typeof babies.$inferSelect; 
   role: "owner" | "editor" | "viewer" 
 } | null> {
-  const db = getDb();
+  const db = await getDb();
 
   // 1. Is the user the owner?
   const ownedBaby = await db.query.babies.findFirst({

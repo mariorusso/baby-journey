@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Integrity check: verify the object exists in R2 using the binding
-    const bucket = getBucket();
+    const bucket = await getBucket();
     const head = await bucket.head(r2Key);
     
     if (!head) {
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 6. Insert the moment into the database (D1)
-    const db = getDb();
+    const db = await getDb();
     const [moment] = await db
       .insert(moments)
       .values({

@@ -14,7 +14,7 @@ export async function syncUser() {
     return null;
   }
 
-  const db = getDb();
+  const db = await getDb();
 
   // 1. Check if the user already exists in D1
   const existingUser = await db.query.users.findFirst({

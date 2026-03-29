@@ -7,7 +7,7 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 export default async function TimelinePage() {
-    const db = getDb();
+    const db = await getDb();
     // Fetch data directly from your New York Postgres Database
     const allMoments = await db.select().from(moments).orderBy(desc(moments.createdAt));
 

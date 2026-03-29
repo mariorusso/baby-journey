@@ -31,7 +31,7 @@ export async function createBaby(formData: FormData) {
     throw new Error("Invalid date");
   }
 
-  const db = getDb();
+  const db = await getDb();
 
   // 3. Insert into D1 (NanoID Strategy)
   const [newBaby] = await db

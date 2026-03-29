@@ -36,7 +36,7 @@ export default async function AlbumPage({
   const canUpload = role === "owner" || role === "editor";
 
   // 3. Fetch moments for this baby
-  const db = getDb();
+  const db = await getDb();
   const babyMoments = await db.query.moments.findMany({
     where: eq(moments.babyId, babyId),
     orderBy: [desc(moments.capturedAt)],
